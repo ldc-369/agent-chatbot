@@ -1,0 +1,21 @@
+.chat-box {
+    background-color: #1e1e1e;
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+.user-msg {
+    background-color: #0e76a8;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    color: white;
+}
+.bot-msg {
+    background-color: #333333;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    color: #00ffcc;
+}
