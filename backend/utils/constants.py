@@ -10,7 +10,6 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-EMBEDDING_MODEL = ""
 GROQ_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 OPENAI_MODEL = "gpt-4.1-mini-2025-04-14"
 

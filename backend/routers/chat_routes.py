@@ -1,8 +1,5 @@
-from pprint import pprint
-
-from utils import constants
 from schemas.chat_schemas import ChatRequest, ChatResponse
-from utils.constants import CUSTOM_QUERY, PROVIDERS
+from utils.constants import CUSTOM_QUERY, PROVIDERS, OPENAI_API_KEY, GROQ_API_KEY, TAVILY_API_KEY
 
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langgraph.prebuilt import create_react_agent
@@ -29,7 +26,7 @@ def initialize_agent(model_name = "gpt-4o-mini", provider = "OpenAI", allow_sear
     )
     agent = create_react_agent(
         model=model_initialized,
-        tools=[TavilySearchResults(max_results=2)] if allow_search else [],
+        tools=[TavilySearchResults(api_key=TAVILY_API_KEY, max_results=2)] if allow_search else [],
         prompt=prompt
     )
     return agent
