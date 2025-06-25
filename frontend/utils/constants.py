@@ -7,5 +7,5 @@ API_URL = os.getenv("API_URL")
 
 PROVIDERS = {
     "OpenAI": ["gpt-4o-mini"],
-    "GroqCloud": ["deepseek-r1-distill-llama-70b"]
+    "Groq": ["deepseek-r1-distill-llama-70b"]
 }

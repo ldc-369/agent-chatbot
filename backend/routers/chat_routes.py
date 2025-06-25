@@ -1,5 +1,5 @@
 from schemas.chat_schemas import ChatRequest, ChatResponse
-from utils.constants import CUSTOM_QUERY, PROVIDERS, OPENAI_API_KEY, GROQ_API_KEY, TAVILY_API_KEY
+from utils.constants import CUSTOM_QUERY, PROVIDERS, TAVILY_API_KEY
 
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langgraph.prebuilt import create_react_agent
@@ -9,6 +9,7 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.prebuilt import create_react_agent
 from langgraph.prebuilt.chat_agent_executor import AgentState
 from fastapi import APIRouter
+from langchain.chat_models import init_chat_model
 
 router = APIRouter()
 
@@ -21,9 +22,13 @@ def prompt (
     return [{"role": "system", "content": system_msg}] + state["messages"]
 
 def initialize_agent(model_name = "gpt-4o-mini", provider = "OpenAI", allow_search = False):
-    model_initialized = PROVIDERS[provider]["func_api"](
-        model=model_name
+    model_initialized = init_chat_model(
+        model=model_name,
+        model_provider=provider.lower(),
+        temperature=0.5,
+        verbose=True
     )
+    
     agent = create_react_agent(
         model=model_initialized,
         tools=[TavilySearchResults(api_key=TAVILY_API_KEY, max_results=2)] if allow_search else [],
