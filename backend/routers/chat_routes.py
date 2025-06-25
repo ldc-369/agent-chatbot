@@ -6,7 +6,6 @@ from langgraph.prebuilt import create_react_agent
 from langchain_core.messages.ai import AIMessage
 from langchain_core.messages import AnyMessage
 from langchain_core.runnables import RunnableConfig
-from langgraph.prebuilt import create_react_agent
 from langgraph.prebuilt.chat_agent_executor import AgentState
 from fastapi import APIRouter
 from langchain.chat_models import init_chat_model
