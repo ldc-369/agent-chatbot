@@ -48,6 +48,3 @@ def initialize_agent(model_name, provider, allow_search: bool = False):
     )
     pre_agent = agent
     return agent
-
-# def clean_output_text(text: str) -> str:
-#     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
