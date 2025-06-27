@@ -1,11 +1,20 @@
 from pydantic import BaseModel
+from langchain_core.documents import Document
 
-class ChatRequest(BaseModel):
+class GeneralChatRequest(BaseModel):
     query: str
     model_name: str
     provider: str
     allow_search: bool
     
-class ChatResponse(BaseModel):
-    data: str
+class PDFChatRequest(BaseModel):
+    query: str
+    model_name: str
+    
+class GeneralChatResponse(BaseModel):
+    data: str | None
+    status: bool
+    
+class PDFChatResponse(BaseModel):
+    data: dict[str, str | list[Document]] | None
     status: bool

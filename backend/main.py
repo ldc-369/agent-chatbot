@@ -1,7 +1,7 @@
-from routers import chat_routes
-
 from fastapi import FastAPI
 import uvicorn
+
+from routers import chat_routes
 
 app = FastAPI(title="LangGraph AI Agent")
 

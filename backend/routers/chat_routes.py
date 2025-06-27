@@ -1,63 +1,63 @@
-from schemas.chat_schemas import ChatRequest, ChatResponse
-from utils.constants import CUSTOM_QUERY, PROVIDERS, TAVILY_API_KEY
-
-from langchain_community.tools.tavily_search import TavilySearchResults
-from langgraph.prebuilt import create_react_agent
 from langchain_core.messages.ai import AIMessage
-from langchain_core.messages import AnyMessage
-from langchain_core.runnables import RunnableConfig
-from langgraph.prebuilt.chat_agent_executor import AgentState
+from langchain.chains import ConversationalRetrievalChain
 from fastapi import APIRouter
-from langchain.chat_models import init_chat_model
+
+from schemas.chat_schemas import GeneralChatRequest, GeneralChatResponse, PDFChatRequest, PDFChatResponse
+from service.general_chat_services import *
+from service.pdf_chat_services import *
+from utils.index import init_groq_model, clean_output_text
 
 router = APIRouter()
 
-def prompt (
-    state: AgentState,
-    config: RunnableConfig,
-) -> list[AnyMessage]:
-    user_name = config["configurable"].get("user_name")
-    system_msg = f"User's name is {user_name}" + CUSTOM_QUERY
-    return [{"role": "system", "content": system_msg}] + state["messages"]
-
-def initialize_agent(model_name = "gpt-4o-mini", provider = "OpenAI", allow_search = False):
-    model_initialized = init_chat_model(
-        model=model_name,
-        model_provider=provider.lower(),
-        temperature=0.5,
-        verbose=True
-    )
-    
-    agent = create_react_agent(
-        model=model_initialized,
-        tools=[TavilySearchResults(api_key=TAVILY_API_KEY, max_results=2)] if allow_search else [],
-        prompt=prompt
-    )
-    return agent
-
-default_agent = initialize_agent()
-
-@router.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest):
+@router.post("/chat", response_model=GeneralChatResponse)
+def chat(request: GeneralChatRequest):
     query = request.query
-    provider = request.provider
+    provider = request.provider.lower()
     model_name = request.model_name
     allow_search = request.allow_search
     
-    agent = default_agent
+    agent = initialize_agent(model_name, provider, allow_search)
     
-    if model_name in PROVIDERS[provider]["models"] and model_name != "gpt-4o-mini":
-        agent = initialize_agent(model_name, provider, allow_search)
-    
-    res = agent.invoke(
+    res = agent.stream(
         input={"messages": [{"role": "user", "content": query}]}, 
-        config={"configurable": {"user_name": "Cuong Bad boy"}}
+        config={"configurable": {"user_name": "Cuong Bad boy", "thread_id": thread_id}},
+        stream_mode="values"
     )
     
-    last_message = res["messages"][-1]
+    # res = agent.invoke(...)
+    # last_message = res["messages"][-1]
     
+    # lặp qua mỗi node
+    for step in res:
+        last_message = step["messages"][-1]
+        # print(last_message.text())
+        # print(last_message)
+        
+        if hasattr(last_message, "content"):
+            cleaned_text = clean_output_text(last_message.content)
+        
     if isinstance(last_message, AIMessage):
-        # print("Last message:", last_message.content)
-        return {"data": last_message.content, "status": True}
+        return {"data": cleaned_text, "status": True}
     else:
         print("No message found!!!")
+        return {"data": "", "status": False}
+
+@router.post("/chat-pdf", response_model=PDFChatResponse)
+def chat_pdf(request: PDFChatRequest):
+    model_name = request.model_name
+    query = request.query
+    
+    model_initialized = init_groq_model(model_name, chat_mode="pdf-chat")
+    
+    qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=model_initialized,
+        retriever=faiss_vectors.as_retriever(search_kwargs={'k':5}), # truy xuất 3 chunks gần nhất
+        memory=buffer_memory,
+        output_key="answer",
+        combine_docs_chain_kwargs={"prompt": pdf_chat_prompt},
+        return_source_documents=True,
+    )
+    
+    answer, sources = get_response(query, qa_chain)
+    cleaned_text = clean_output_text(answer)
+    return {"data": {"answer": cleaned_text, "sources": sources}, "status": True}
