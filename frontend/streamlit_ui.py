@@ -6,7 +6,6 @@ import streamlit as st
 
 from utils.constants import PROVIDERS, API_URL
 
-
 def apply_custom_css(path="frontend/css/styles.css"):
     with open(path, "r", encoding="utf-8") as f:
         css = f.read()
