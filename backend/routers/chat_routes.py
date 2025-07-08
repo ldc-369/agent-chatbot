@@ -3,8 +3,8 @@ from langchain.chains import ConversationalRetrievalChain
 from fastapi import APIRouter
 
 from schemas.chat_schemas import GeneralChatRequest, GeneralChatResponse, PDFChatRequest, PDFChatResponse
-from service.general_chat_services import *
-from service.pdf_chat_services import *
+from services.general_chat_service import *
+from services.pdf_chat_service import *
 from utils.index import init_groq_model, clean_output_text
 
 router = APIRouter()

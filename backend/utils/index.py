@@ -6,7 +6,7 @@ from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace, HuggingF
 
 from utils.constants.keys import OPENAI_API_KEY, GROQ_API_KEY, HF_TOKEN
 from utils.constants.embedding_models import HF_EMBEDDING_MODEL
-from service.pdf_chat_services import get_response
+from services.pdf_chat_service import get_response
 
 def init_openai_model(model_name, **kwargs):
     return ChatOpenAI(model=model_name, temperature=0.5, verbose=True, api_key=OPENAI_API_KEY, **kwargs)
